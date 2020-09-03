@@ -61,5 +61,12 @@
         "name": "Speed Test",
         "description": "Runs a Speed Test",
         "shell": "python"
-    }
+    },
+     {
+        "filename": "Rename-Installed-App.ps1",
+        "submittedBy": "https://github.com/bradhawkins85",
+        "name": "Rename Installed App",
+        "description": "Rename Tactical RMM Agent to your desired program name in Add/Remove Programs",
+        "shell": "powershell"
+    }   
 ]
