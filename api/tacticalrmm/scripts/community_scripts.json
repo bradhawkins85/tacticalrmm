@@ -414,6 +414,21 @@
     "category": "TRMM (Win):3rd Party Software"
   },
   {
+    "guid": "8f02f8e7-8255-48f4-b9fd-1cadbcf0b4e5",
+    "filename": "Win_TRMM_Install_ThreatLocker.ps1",
+    "submittedBy": "https://github.com/bradhawkins85",
+    "name": "Install - ThreatLocker",
+    "description": "Install ThreatLocker Agent",
+    "args": [
+      "-organizationName {{client.name}}",
+      "-groupName {{agent.monitoring_type}}",
+      "-identifier {{global.ThreatLockerID}}"
+    ],
+    "default_timeout": "300",
+    "shell": "powershell",
+    "category": "TRMM (Win):3rd Party Software"
+  },
+  {
     "guid": "3abbb62a-3757-492c-8979-b4fc6174845d",
     "filename": "Win_AutoRun_Disable.bat",
     "submittedBy": "https://github.com/silversword411",
