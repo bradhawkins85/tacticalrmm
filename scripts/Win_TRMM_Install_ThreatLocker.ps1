@@ -1,3 +1,5 @@
+#Requires Global Key Store entry called ThreatLockerID, Example Value: abcd3123-abc1-abc1-abc1-abcde123456
+
 param (
   [string] $organizationName,
   [string] $groupName,
