@@ -1,0 +1,77 @@
+diff --git a/src/views/DashboardView.vue b/src/views/DashboardView.vue
+index b08a3b9..03b1d89 100644
+--- a/src/views/DashboardView.vue
++++ b/src/views/DashboardView.vue
+@@ -18,6 +18,18 @@
+           class="q-pa-sm q-gutter-sm scroll"
+           style="height: 85vh; overflow: initial"
+         >
++          <q-input
++            v-model="treeSearch"
++            dense
++            outlined
++            clearable
++            placeholder="Search Clients/Sites..."
++            class="q-mb-sm"
++          >
++            <template v-slot:prepend>
++              <q-icon name="search" />
++            </template>
++          </q-input>
+           <q-list dense class="rounded-borders">
+             <q-item
+               clickable
+@@ -32,7 +44,7 @@
+             </q-item>
+             <q-tree
+               ref="tree"
+-              :nodes="clientsTree"
++              :nodes="filteredClientsTree"
+               node-key="raw"
+               no-nodes-label="No Clients"
+               selected-color="primary"
+@@ -482,6 +494,7 @@ export default {
+       sitePk: null,
+       innerModel: (this.$q.screen.height - 82) / 2,
+       search: this.$route.query.search ? this.$route.query.search : "",
++      treeSearch: "",
+       filterTextLength: 0,
+       filterAvailability: "all",
+       filterPatchesPending: false,
+@@ -882,6 +895,36 @@ export default {
+     allClientsActive() {
+       return this.selectedTree === "";
+     },
++    filteredClientsTree() {
++      if (!this.treeSearch) {
++        return this.clientsTree;
++      }
++
++      const searchLower = this.treeSearch.toLowerCase();
++      
++      return this.clientsTree
++        .map((client) => {
++          // Check if client name matches
++          const clientMatches = client.label.toLowerCase().includes(searchLower);
++          
++          // Filter sites that match the search
++          const filteredSites = client.children.filter((site) =>
++            site.label.toLowerCase().includes(searchLower)
++          );
++
++          // Include client if either client name matches or it has matching sites
++          if (clientMatches || filteredSites.length > 0) {
++            return {
++              ...client,
++              // If client matches, show all sites; otherwise show only matching sites
++              children: clientMatches ? client.children : filteredSites,
++            };
++          }
++          
++          return null;
++        })
++        .filter((client) => client !== null);
++    },
+     filteredAgents() {
+       if (this.tab === "mixed") return this.agents;
+       else return this.agents.filter((k) => k.monitoring_type === this.tab);
