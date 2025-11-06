@@ -907,8 +907,11 @@ export default {
           // Check if client name matches
           const clientMatches = client.label.toLowerCase().includes(searchLower);
           
+          // Safety check: ensure client has children array
+          const children = client.children || [];
+          
           // Filter sites that match the search
-          const filteredSites = client.children.filter((site) =>
+          const filteredSites = children.filter((site) =>
             site.label.toLowerCase().includes(searchLower)
           );
 
@@ -916,7 +919,7 @@ export default {
           if (clientMatches || filteredSites.length > 0) {
             return {
               ...client,
-              // If client matches, show all sites; otherwise show only matching sites
+              // If client name matches, show all sites; otherwise show only matching sites
               children: clientMatches ? client.children : filteredSites,
             };
           }

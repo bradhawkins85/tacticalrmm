@@ -1,5 +1,5 @@
 diff --git a/src/views/DashboardView.vue b/src/views/DashboardView.vue
-index b08a3b9..03b1d89 100644
+index b08a3b9..43f6fdd 100644
 --- a/src/views/DashboardView.vue
 +++ b/src/views/DashboardView.vue
 @@ -18,6 +18,18 @@
@@ -38,7 +38,7 @@ index b08a3b9..03b1d89 100644
        filterTextLength: 0,
        filterAvailability: "all",
        filterPatchesPending: false,
-@@ -882,6 +895,36 @@ export default {
+@@ -882,6 +895,39 @@ export default {
      allClientsActive() {
        return this.selectedTree === "";
      },
@@ -54,8 +54,11 @@ index b08a3b9..03b1d89 100644
 +          // Check if client name matches
 +          const clientMatches = client.label.toLowerCase().includes(searchLower);
 +          
++          // Safety check: ensure client has children array
++          const children = client.children || [];
++          
 +          // Filter sites that match the search
-+          const filteredSites = client.children.filter((site) =>
++          const filteredSites = children.filter((site) =>
 +            site.label.toLowerCase().includes(searchLower)
 +          );
 +
@@ -63,7 +66,7 @@ index b08a3b9..03b1d89 100644
 +          if (clientMatches || filteredSites.length > 0) {
 +            return {
 +              ...client,
-+              // If client matches, show all sites; otherwise show only matching sites
++              // If client name matches, show all sites; otherwise show only matching sites
 +              children: clientMatches ? client.children : filteredSites,
 +            };
 +          }
