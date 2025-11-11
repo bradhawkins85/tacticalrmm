@@ -450,6 +450,91 @@ class TestCoreTasks(TacticalTestCase):
 
         self.check_not_authenticated("patch", url)
 
+    def test_get_schedules(self):
+        url = "/core/schedules/"
+
+        # setup
+        schedules = baker.make("core.Schedule", _quantity=2)
+
+        r = self.client.get(url)
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(len(r.data), 2)
+
+        self.check_not_authenticated("get", url)
+
+    def test_add_schedule(self):
+        from datetime import time
+        
+        url = "/core/schedules/"
+
+        data = {
+            "name": "Test Schedule",
+            "run_time": time(9, 0).isoformat(),
+            "schedule_type": "weekly",
+            "run_time_weekdays": [1, 2, 3, 4, 5],
+        }
+        r = self.client.post(url, data, format="json")
+        self.assertEqual(r.status_code, 200)
+
+        self.check_not_authenticated("post", url)
+
+    def test_update_schedule(self):
+        from datetime import time
+        
+        # setup
+        schedule = baker.make("core.Schedule")
+
+        # test not found
+        r = self.client.put("/core/schedules/500/")
+        self.assertEqual(r.status_code, 404)
+
+        url = f"/core/schedules/{schedule.id}/"
+        data = {
+            "name": "Updated Schedule",
+            "run_time": time(10, 30).isoformat(),
+        }
+        r = self.client.put(url, data, format="json")
+        self.assertEqual(r.status_code, 200)
+
+        self.check_not_authenticated("put", url)
+
+    def test_delete_schedule(self):
+        from core.models import Schedule
+        
+        # setup - test successful deletion
+        schedule = baker.make("core.Schedule")
+
+        # test not found
+        r = self.client.delete("/core/schedules/500/")
+        self.assertEqual(r.status_code, 404)
+
+        url = f"/core/schedules/{schedule.id}/"
+        r = self.client.delete(url)
+        self.assertEqual(r.status_code, 200)
+
+        self.assertFalse(Schedule.objects.filter(pk=schedule.id).exists())
+
+        self.check_not_authenticated("delete", url)
+
+    def test_delete_schedule_in_use(self):
+        from contextlib import suppress
+        
+        # setup - test deletion with report schedule dependency
+        schedule = baker.make("core.Schedule")
+
+        # Try to create a ReportSchedule if EE module is available
+        with suppress(Exception):
+            report_schedule = baker.make(
+                "ee.reporting.ReportSchedule",
+                schedule=schedule,
+                name="Test Report Schedule",
+            )
+            
+            url = f"/core/schedules/{schedule.id}/"
+            r = self.client.delete(url)
+            self.assertEqual(r.status_code, 400)
+            self.assertIn("Test Report Schedule", r.data)
+
     def test_clear_cache(self):
         url = "/core/clearcache/"
         r = self.client.get(url)

@@ -531,6 +531,20 @@ class UpdateDeleteSchedule(APIView):
     def delete(self, request, pk):
         schedule = get_object_or_404(Schedule, pk=pk)
 
+        # Check if schedule is being used before attempting to delete
+        try:
+            from ee.reporting.models import ReportSchedule
+            
+            report_schedules = ReportSchedule.objects.filter(schedule=schedule)
+            if report_schedules.exists():
+                report_names = ", ".join([rs.name for rs in report_schedules])
+                return notify_error(
+                    f"This schedule is currently in use by the following report schedule(s): {report_names}"
+                )
+        except Exception:
+            # If EE module is not available, continue with regular delete
+            pass
+
         try:
             schedule.delete()
         except IntegrityError:
